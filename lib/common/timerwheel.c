@@ -273,6 +273,10 @@ static void cascade_one(h2o_timerwheel_t *ctx, size_t wheel, size_t slot)
 
     while (!h2o_linklist_is_empty(s)) {
         h2o_timerwheel_entry_t *entry = H2O_STRUCT_FROM_MEMBER(h2o_timerwheel_entry_t, _link, s->next);
+        if (entry->expire_at == 0) {
+           h2o_linklist_init_anchor(s);
+           break;
+        }
         if (entry->expire_at < ctx->last_run)
             ABORT_CORRUPT_TIMER(ctx, entry, ", wheel=%zu, slot=%zu", wheel, slot);
         h2o_linklist_unlink(&entry->_link);
